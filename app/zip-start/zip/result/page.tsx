@@ -218,9 +218,9 @@ export default function ResultPage() {
                   </div>
                 </div>
                 <div>
-                  <span className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 text-white font-medium text-xs shadow-sm border border-amber-400/30">
-                    Coming Soon
-                  </span>
+                  <button disabled={game.comingSoon} className="px-3 py-1 rounded-lg bg-yellow-500 text-white font-medium text-xs">
+                    {game.comingSoon ? "Coming Soon" : "Play"}
+                  </button>
                 </div>
               </Card>
             </Link>
