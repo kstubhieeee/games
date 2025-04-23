@@ -42,6 +42,7 @@ export function NumberPathGame() {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [backtrackCount, setBacktrackCount] = useState(0)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const gameContainerRef = useRef<HTMLDivElement>(null)
 
   const gridSize = 6
   // Use default puzzle for initial render to avoid hydration mismatch
@@ -211,6 +212,68 @@ export function NumberPathGame() {
     }
   }, [path, gridSize, gameCompleted])
 
+  // Prevent scrolling during gameplay
+  useEffect(() => {
+    if (!isClientSide) return
+
+    // Function to prevent all scrolling and touch movement during gameplay
+    const preventScroll = (e: TouchEvent) => {
+      if (gameContainerRef.current?.contains(e.target as Node) || !gameCompleted) {
+        e.preventDefault()
+      }
+    }
+
+    // Function to handle touchmove specifically for the game container
+    const preventDefaultForGameContainer = (e: Event) => {
+      if (!gameCompleted) {
+        e.preventDefault()
+      }
+    }
+
+    // Lock viewport width to prevent horizontal scroll on mobile
+    const setViewportMeta = () => {
+      let viewportMeta = document.querySelector('meta[name="viewport"]')
+      if (!viewportMeta) {
+        viewportMeta = document.createElement('meta')
+        viewportMeta.setAttribute('name', 'viewport')
+        document.head.appendChild(viewportMeta)
+      }
+      viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+    }
+
+    // Apply the viewport settings
+    setViewportMeta()
+
+    // Add event listeners with passive: false to ensure preventDefault works
+    document.addEventListener('touchmove', preventScroll, { passive: false })
+    document.addEventListener('touchstart', preventScroll, { passive: false })
+    
+    const gameContainer = gameContainerRef.current
+    if (gameContainer) {
+      gameContainer.addEventListener('touchmove', preventDefaultForGameContainer, { passive: false })
+    }
+
+    // Add overflow hidden to body during gameplay
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.width = '100%'
+    document.body.style.height = '100%'
+
+    return () => {
+      document.removeEventListener('touchmove', preventScroll)
+      document.removeEventListener('touchstart', preventScroll)
+      if (gameContainer) {
+        gameContainer.removeEventListener('touchmove', preventDefaultForGameContainer)
+      }
+      
+      // Restore body styles when component unmounts
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.height = ''
+    }
+  }, [isClientSide, gameCompleted])
+
   const isAdjacent = (pos1: Position, pos2: Position) => {
     // Only allow horizontal and vertical moves
     return (
@@ -222,7 +285,8 @@ export function NumberPathGame() {
   const [isDragging, setIsDragging] = useState(false)
   const [lastHoveredCell, setLastHoveredCell] = useState<Position | null>(null)
 
-  const handleCellMouseDown = (row: number, col: number) => {
+  const handleCellMouseDown = (row: number, col: number, e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
     if (gameCompleted) return
     
     // If we're just starting
@@ -283,7 +347,8 @@ export function NumberPathGame() {
     });
   }
 
-  const handleCellMouseEnter = (row: number, col: number) => {
+  const handleCellMouseEnter = (row: number, col: number, e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
     if (!isDragging || gameCompleted) return
 
     const currentPos = { row, col }
@@ -299,9 +364,42 @@ export function NumberPathGame() {
     setLastHoveredCell(currentPos)
   }
 
-  const handleCellMouseUp = () => {
+  const handleCellMouseUp = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
     setIsDragging(false)
     setLastHoveredCell(null)
+  }
+
+  // Touch event handlers
+  const handleCellTouchStart = (row: number, col: number, e: React.TouchEvent) => {
+    e.preventDefault()
+    handleCellMouseDown(row, col)
+  }
+
+  const handleCellTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault()
+    if (!isDragging || gameCompleted) return
+    
+    const touch = e.touches[0]
+    const element = document.elementFromPoint(touch.clientX, touch.clientY)
+    
+    if (element) {
+      // Extract row and col from element's key attribute or dataset
+      const cellElement = element.closest('[data-row][data-col]')
+      if (cellElement) {
+        const row = parseInt(cellElement.getAttribute('data-row') || '-1')
+        const col = parseInt(cellElement.getAttribute('data-col') || '-1')
+        
+        if (row !== -1 && col !== -1) {
+          handleCellMouseEnter(row, col)
+        }
+      }
+    }
+  }
+
+  const handleCellTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault()
+    handleCellMouseUp()
   }
 
   // Add event listeners for mouse up outside the grid
@@ -312,7 +410,12 @@ export function NumberPathGame() {
     }
 
     window.addEventListener('mouseup', handleGlobalMouseUp)
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
+    window.addEventListener('touchend', handleGlobalMouseUp)
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp)
+      window.removeEventListener('touchend', handleGlobalMouseUp)
+    }
   }, [])
 
   const handleCellClick = (row: number, col: number) => {
@@ -432,7 +535,7 @@ export function NumberPathGame() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto touch-none overflow-hidden">
       {/* Timer Display */}
       {startTime && !gameCompleted && (
         <div className="mb-4 text-xl font-mono">
@@ -440,7 +543,13 @@ export function NumberPathGame() {
         </div>
       )}
 
-      <div className="relative w-full aspect-square bg-white rounded-3xl shadow-sm border border-gray-200 mb-4 overflow-hidden">
+      <div 
+        ref={gameContainerRef}
+        className="relative w-full aspect-square bg-white rounded-3xl shadow-sm border border-gray-200 mb-4 overflow-hidden touch-none"
+        onTouchMove={handleCellTouchMove}
+        onTouchEnd={handleCellTouchEnd}
+        style={{ touchAction: 'none' }}
+      >
         {/* Canvas for drawing paths */}
         <canvas
           ref={canvasRef}
@@ -450,7 +559,7 @@ export function NumberPathGame() {
         />
 
         {/* Grid */}
-        <div className="grid grid-cols-6 grid-rows-6 w-full h-full">
+        <div className="grid grid-cols-6 grid-rows-6 w-full h-full touch-none">
           {Array.from({ length: gridSize * gridSize }).map((_, index) => {
             const row = Math.floor(index / gridSize)
             const col = index % gridSize
@@ -460,15 +569,18 @@ export function NumberPathGame() {
             return (
               <div
                 key={index}
+                data-row={row}
+                data-col={col}
                 className={`
                   border border-gray-200 flex items-center justify-center relative
                   ${cellState.isPath ? (gameCompleted ? "bg-green-100" : "bg-blue-50") : ""}
                   ${gameCompleted ? "cursor-default" : "cursor-pointer"}
-                  transition-colors duration-200
+                  transition-colors duration-200 touch-none
                 `}
-                onMouseDown={() => handleCellMouseDown(row, col)}
-                onMouseEnter={() => handleCellMouseEnter(row, col)}
+                onMouseDown={(e) => handleCellMouseDown(row, col, e)}
+                onMouseEnter={(e) => handleCellMouseEnter(row, col, e)}
                 onMouseUp={handleCellMouseUp}
+                onTouchStart={(e) => handleCellTouchStart(row, col, e)}
               >
                 {dot && (
                   <div
