@@ -1,103 +1,111 @@
-import Image from "next/image";
+import Link from "next/link"
+import { Card } from "@/components/ui/card"
+import { GameIcons } from "@/components/game-icons"
+import { cn } from "@/lib/utils"
+
+const games = [
+  {
+    id: "number-path",
+    title: "Number Path",
+    description: "Connect numbers in sequence to solve challenging puzzles",
+    route: "/zip-start",
+    icon: GameIcons.NumberPath,
+    color: "bg-gradient-to-br from-blue-500 to-blue-600",
+    comingSoon: false,
+  },
+  {
+    id: "tango",
+    title: "Tango #197",
+    description: "A unique puzzle combining pattern recognition and strategy",
+    route: "/tango",
+    icon: GameIcons.Tango,
+    color: "bg-gradient-to-br from-slate-600 to-slate-700",
+    comingSoon: true,
+  },
+  {
+    id: "queens",
+    title: "Queens #357",
+    description: "Classic chess-inspired puzzle with queen placement challenges",
+    route: "/queens",
+    icon: GameIcons.Queens,
+    color: "bg-gradient-to-br from-purple-500 to-purple-600",
+    comingSoon: true,
+  },
+  {
+    id: "pinpoint",
+    title: "Pinpoint #357",
+    description: "Test your precision and spatial awareness",
+    route: "/pinpoint",
+    icon: GameIcons.Pinpoint,
+    color: "bg-gradient-to-br from-blue-600 to-blue-700",
+    comingSoon: true,
+  },
+  {
+    id: "crossclimb",
+    title: "Crossclimb",
+    description: "Climb your way through crossword-style challenges",
+    route: "/crossclimb",
+    icon: GameIcons.Crossclimb,
+    color: "bg-gradient-to-br from-teal-500 to-teal-600",
+    comingSoon: true,
+  },
+]
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="container mx-auto px-4 py-8 max-w-3xl">
+      {/* Hero Section */}
+      <section className="text-center mb-12 mt-24 sm:mt-20 md:mt-16 animate-fade-in-up">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white drop-shadow-lg">
+          Welcome to Puzzle Games
+        </h1>
+        <p className="text-lg sm:text-xl text-black max-w-2xl mx-auto drop-shadow">
+          Challenge your mind with our collection of engaging puzzle games. 
+          Exercise your brain while having fun!
+        </p>
+      </section>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Games List */}
+      <div className="space-y-6 max-w-3xl mx-auto mt-8">
+        {games.map((game, index) => (
+          <Link
+            key={game.id}
+            href={game.route}
+            className={cn(
+              "block w-full animate-fade-in-up",
+              `delay-${index + 1}`
+            )}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+            <Card className="p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:justify-between hover:bg-white/90 transition-all duration-300 cursor-pointer glass-card hover-scale gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full">
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 ${game.id === 'number-path' ? 'bg-white rounded-2xl p-2' : game.color} rounded-2xl flex items-center justify-center shadow-lg overflow-hidden`}>
+                  <game.icon />
+                </div>
+                <div className="text-center sm:text-left">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2 text-yellow-950">{game.title}</h2>
+                  <p className="text-sm sm:text-base text-yellow-900/90">{game.description}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center sm:justify-end w-full sm:w-auto mt-3 sm:mt-0">
+                {game.comingSoon ? (
+                  <span className="px-4 py-2 rounded-xl bg-yellow-500 text-white font-medium text-sm sm:text-base">
+                    Coming Soon
+                  </span>
+                ) : (
+                  <span className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-medium hover:bg-yellow-700 transition-colors text-sm sm:text-base">
+                    Play Now
+                  </span>
+                )}
+              </div>
+            </Card>
+          </Link>
+        ))}
+      </div>
+
+      {/* Footer Section */}
+      <footer className="mt-16 text-center text-white animate-fade-in-up delay-5 drop-shadow">
+        <p>Select a game above to start playing!</p>
       </footer>
-    </div>
-  );
+    </main>
+  )
 }
