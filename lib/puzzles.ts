@@ -64,9 +64,16 @@ export const puzzles: Dot[][] = [
   { id: 8, position: { row: 4, col: 3 } },  // 8 is at col 2
   { id: 9, position: { row: 3, col: 1 } },
   { id: 10, position: { row: 1, col: 1 } },
+  ],
+  
+  [
+  { id: 1, position: { row: 3, col: 2 } },
+  { id: 2, position: { row: 0, col: 5 } },
+  { id: 3, position: { row: 5, col: 0 } },
+  { id: 4, position: { row: 1, col: 1 } },
+  { id: 5, position: { row: 2, col: 3 } },
+  { id: 6, position: { row: 4, col: 4 } },
 ]
-
-
 
 ]
 
