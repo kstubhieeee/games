@@ -29,6 +29,17 @@ export const puzzles: Dot[][] = [
     { id: 5, position: { row: 0, col: 2 } },
     { id: 6, position: { row: 1, col: 1 } },
   ],
+  [
+  { id: 1, position: { row: 2, col: 2 } },
+  { id: 2, position: { row: 5, col: 2 } },
+  { id: 3, position: { row: 4, col: 5 } },
+  { id: 4, position: { row: 0, col: 3 } },
+  { id: 5, position: { row: 1, col: 0 } },
+  { id: 6, position: { row: 3, col: 3 } },
+  { id: 7, position: { row: 4, col: 1 } },
+  { id: 8, position: { row: 1, col: 4 } },
+]
+
 ]
 
 export function getRandomPuzzle(): Dot[] {
