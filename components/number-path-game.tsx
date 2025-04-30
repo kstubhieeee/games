@@ -67,6 +67,8 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
   const [currentDotIndex, setCurrentDotIndex] = useState(0)
   const [instructionsOpen, setInstructionsOpen] = useState(true)
   const [gameCompleted, setGameCompleted] = useState(false)
+  const [countdown, setCountdown] = useState(10)
+  const countdownRef = useRef<NodeJS.Timeout | null>(null)
   const [grid, setGrid] = useState<CellState[][]>(
     Array(gridSize)
       .fill(null)
@@ -175,13 +177,9 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
         if (timerRef.current) {
           clearInterval(timerRef.current)
         }
-        
-        // Redirect to result page with stats
-        const finalTime = Math.floor((Date.now() - (startTime || Date.now())) / 1000)
-        router.push(`/zip-start/zip/result?time=${finalTime}&backtracks=${backtrackCount}`)
       }
     }
-  }, [path, dots, gridSize, gameCompleted, startTime, backtrackCount, router])
+  }, [path, dots, gridSize, gameCompleted])
 
   // Draw the grid and path whenever path changes
   useEffect(() => {
@@ -545,6 +543,31 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
     setBacktrackCount(0)
   }
 
+  // Start countdown when game is completed
+  useEffect(() => {
+    if (gameCompleted) {
+      setCountdown(10)
+      countdownRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            if (countdownRef.current) {
+              clearInterval(countdownRef.current)
+            }
+            router.push(`/zip-start/zip/result?time=${elapsedTime}&backtracks=${backtrackCount}`)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+
+    return () => {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current)
+      }
+    }
+  }, [gameCompleted, elapsedTime, backtrackCount, router])
+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto touch-none overflow-hidden">
       {/* Timer Display */}
@@ -617,13 +640,34 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
 
         {/* Game completed overlay */}
         {gameCompleted && (
-          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center z-30 pointer-events-none">
-            <div className="bg-white px-6 py-4 rounded-xl shadow-lg transform -translate-y-10 pointer-events-auto">
+          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center z-30 pointer-events-auto">
+            <div className="bg-white px-6 py-4 rounded-xl shadow-lg transform -translate-y-10">
               <h2 className="text-xl font-bold text-green-600 mb-2">Puzzle Completed!</h2>
-              <p className="text-gray-600 mb-4">You've successfully connected all dots and filled every cell!</p>
-              <Button className="w-full bg-green-600 hover:bg-green-700" onClick={resetGame}>
-                <RefreshCw className="mr-2 h-4 w-4" /> Play Again
-              </Button>
+              <p className="text-gray-600 mb-4">Redirecting to results in {countdown} seconds...</p>
+              <div className="flex gap-4">
+                <Button 
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={() => {
+                    if (countdownRef.current) {
+                      clearInterval(countdownRef.current)
+                    }
+                    router.push(`/zip-start/zip/result?time=${elapsedTime}&backtracks=${backtrackCount}`)
+                  }}
+                >
+                  View Results
+                </Button>
+                <Button 
+                  className="w-full bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    if (countdownRef.current) {
+                      clearInterval(countdownRef.current)
+                    }
+                    resetGame()
+                  }}
+                >
+                  Play Again
+                </Button>
+              </div>
             </div>
           </div>
         )}
