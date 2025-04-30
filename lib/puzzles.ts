@@ -83,4 +83,11 @@ export const puzzles: Dot[][] = [
 export function getRandomPuzzle(): Dot[] {
   const randomIndex = Math.floor(Math.random() * puzzles.length)
   return puzzles[randomIndex]
+}
+
+export function getPuzzleByLevel(level: number): Dot[] {
+  // Level is 1-indexed, but array is 0-indexed
+  const index = level - 1
+  // Return the requested puzzle or the first one if index is out of bounds
+  return index >= 0 && index < puzzles.length ? puzzles[index] : puzzles[0]
 } 

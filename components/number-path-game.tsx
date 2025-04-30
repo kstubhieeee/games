@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { useRouter } from "next/navigation"
-import { getRandomPuzzle } from "@/lib/puzzles"
+import { getRandomPuzzle, getPuzzleByLevel } from "@/lib/puzzles"
 
 type Position = {
   row: number
@@ -36,7 +36,11 @@ const defaultPuzzle: Dot[] = [
   { id: 8, position: { row: 2, col: 3 } },
 ]
 
-export function NumberPathGame() {
+type NumberPathGameProps = {
+  level?: number
+}
+
+export function NumberPathGame({ level }: NumberPathGameProps) {
   const router = useRouter()
   const [startTime, setStartTime] = useState<number | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -49,11 +53,15 @@ export function NumberPathGame() {
   const [dots, setDots] = useState<Dot[]>(defaultPuzzle)
   const [isClientSide, setIsClientSide] = useState(false)
 
-  // Only select random puzzle on client side
+  // Only select puzzle on client side
   useEffect(() => {
     setIsClientSide(true)
-    setDots(getRandomPuzzle())
-  }, [])
+    if (level) {
+      setDots(getPuzzleByLevel(level))
+    } else {
+      setDots(getRandomPuzzle())
+    }
+  }, [level])
 
   const [path, setPath] = useState<Position[]>([])
   const [currentDotIndex, setCurrentDotIndex] = useState(0)
@@ -494,8 +502,8 @@ export function NumberPathGame() {
       const lastPos = path[path.length - 1]
       const lastDot = dots.find((dot) => dot.position.row === lastPos.row && dot.position.col === lastPos.col)
 
-      if (lastDot && lastDot.id === currentDotIndex - 1) {
-        setCurrentDotIndex(lastDot.id)
+      if (lastDot && lastDot.id === currentDotIndex) {
+        setCurrentDotIndex(lastDot.id - 1)
       }
 
       setPath(path.slice(0, -1))
@@ -532,6 +540,9 @@ export function NumberPathGame() {
     setPath([])
     setCurrentDotIndex(0)
     setGameCompleted(false)
+    setStartTime(null)
+    setElapsedTime(0)
+    setBacktrackCount(0)
   }
 
   return (
