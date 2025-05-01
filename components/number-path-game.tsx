@@ -224,15 +224,19 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
 
     // Function to prevent all scrolling and touch movement during gameplay
     const preventScroll = (e: TouchEvent) => {
-      if (gameContainerRef.current?.contains(e.target as Node) || !gameCompleted) {
-        e.preventDefault()
+      const target = e.target as HTMLElement;
+      // Only prevent scroll if the target is a grid cell or the game container
+      if (target.closest('[data-row][data-col]') || gameContainerRef.current?.contains(target)) {
+        e.preventDefault();
       }
     }
 
     // Function to handle touchmove specifically for the game container
     const preventDefaultForGameContainer = (e: Event) => {
-      if (!gameCompleted) {
-        e.preventDefault()
+      const target = e.target as HTMLElement;
+      // Only prevent default if the target is a grid cell
+      if (target.closest('[data-row][data-col]')) {
+        e.preventDefault();
       }
     }
 
@@ -316,24 +320,8 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
     // Check if this cell is part of our existing path
     const cellIndex = path.findIndex(pos => pos.row === row && pos.col === col);
     
-    // If we clicked on a cell that's part of our path
+    // If we clicked on a cell that's part of our path, ignore it
     if (cellIndex !== -1) {
-      // Trim path up to this cell
-      const newPath = path.slice(0, cellIndex + 1);
-      setPath(newPath);
-      
-      // Update current dot index based on the new path
-      const lastPos = newPath[newPath.length - 1];
-      const lastDot = dots.find(dot => 
-        dot.position.row === lastPos.row && dot.position.col === lastPos.col
-      );
-      
-      if (lastDot) {
-        setCurrentDotIndex(lastDot.id);
-      }
-      
-      setLastHoveredCell({ row, col });
-      setIsDragging(true);
       return;
     }
     
@@ -676,7 +664,7 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
       <div className="flex w-full gap-4 mb-4 justify-center">
         <Button
           variant="outline"
-          className="flex-1 max-w-[200px] bg-gray-200 hover:bg-gray-300 text-black rounded-xl"
+          className="flex-1 max-w-[200px] bg-gray-200 hover:bg-gray-300 text-black rounded-xl touch-manipulation"
           onClick={handleUndo}
           disabled={gameCompleted || path.length === 0}
         >
@@ -684,7 +672,7 @@ export function NumberPathGame({ level }: NumberPathGameProps) {
         </Button>
         <Button
           variant="outline"
-          className="flex-1 max-w-[200px] bg-white hover:bg-gray-100 text-black rounded-xl border border-gray-300"
+          className="flex-1 max-w-[200px] bg-white hover:bg-gray-100 text-black rounded-xl border border-gray-300 touch-manipulation"
           onClick={handleHint}
           disabled={gameCompleted}
         >
