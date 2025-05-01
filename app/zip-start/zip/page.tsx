@@ -62,31 +62,7 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        {!showLevelSelect && (
-          <div className="flex flex-col items-center gap-4 text-center">
-            <h2 className="text-2xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">How to Play</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl">
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-primary/20">
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-primary mb-2">1</div>
-                  <p className="text-lg">Start from dot 1</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-primary/20">
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-primary mb-2">2</div>
-                  <p className="text-lg">Connect dots in sequence</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-primary/20">
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-primary mb-2">3</div>
-                  <p className="text-lg">Fill every cell in the grid</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
+     
       </div>
     </main>
   )
